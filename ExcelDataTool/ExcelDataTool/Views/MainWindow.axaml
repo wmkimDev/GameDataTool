@@ -1,0 +1,77 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="using:ExcelDataTool.Views"
+        xmlns:vm="using:ExcelDataTool.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="ExcelDataTool.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="true"
+        Height="1100" Width="800"
+        Title="DataTool">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="*, Auto">
+        <TabControl Grid.Row="0">
+            <TabItem Header="Path Settings">
+                <v:InteractionView DataContext="{Binding FilePathModel}" />
+            </TabItem>
+            <TabItem Header="Type Settings">
+                <v:TypeSettingView DataContext="{Binding TypeSettingModel}" />
+            </TabItem>
+        </TabControl>
+        
+        <Border Grid.Row="1"
+                Name="ConsoleOverlay"
+                Height="400"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Margin="5,5,5,5"
+                BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                BorderThickness="1"
+                CornerRadius="3"
+                BoxShadow="2 2 4 0 #40000000"
+                Background="{DynamicResource SystemChromeMediumLowColor}">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Console Header with Clear Button -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Height="35">
+                    <TextBlock Grid.Column="0"
+                               Text="Console Output"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Margin="10,5,5,5"/>
+           
+                    <Button Grid.Column="1"
+                            Command="{Binding ClearConsoleCommand}"
+                            Content="Clear"
+                            VerticalAlignment="Center"
+                            Margin="5,5,5,2"
+                            Padding="4,4"/>
+                </Grid>
+                
+                <!-- Console Output -->
+                <ScrollViewer Grid.Row="1"
+                              Margin="5"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding ConsoleOutput}"
+                                  Background="{DynamicResource SystemBaseLowColor}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           FontFamily="Consolas"
+                                           Margin="5,2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+

@@ -1,0 +1,161 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ExcelDataTool.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:FilePathViewModel"
+             x:Class="ExcelDataTool.Views.InteractionView">
+    
+    <!-- Panel to allow overlay positioning -->
+    <Panel>
+        <!-- Main layout grid with spacing between sections -->
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="10">
+            <!-- Input Paths Section -->
+            <StackPanel Grid.Row="0" Spacing="10">
+                <TextBlock Text="Configuration" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                <Grid ColumnDefinitions="*,*,Auto">
+                    <!-- Config Loading -->
+                    <ComboBox Grid.Column="0"
+                              ItemsSource="{Binding AvailableConfigs}"
+                              SelectedItem="{Binding SelectedConfig}"
+                              Margin="0,0,5,0"
+                              HorizontalAlignment="Stretch"/>
+                    <!-- Config Saving -->
+                    <TextBox Grid.Column="1"
+                             Text="{Binding ConfigName}"
+                             Watermark="New Config Name..."
+                             Margin="5,0,5,0"/>
+                        
+                    <Button Grid.Column="2"
+                            Command="{Binding SaveConfigCommand}"
+                            Content="Save Config"
+                            Margin="5,0,0,0"/>
+                </Grid>
+                
+                <!-- Table Path Selection -->
+                <TextBlock Text="Paths" 
+                           FontWeight="Bold" 
+                           Margin="0,10,0,5"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding SelectTablePathCommand}"
+                            Content="Browse..."
+                            Margin="5,0,0,0"/>
+                    <TextBox Text="{Binding TablePath}"
+                             Watermark="Table Path..."
+                             IsReadOnly="False"/>
+                </DockPanel>
+
+                <!-- String Path Selection -->
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding SelectStringPathCommand}"
+                            Content="Browse..."
+                            Margin="5,0,0,0"/>
+                    <TextBox Text="{Binding StringPath}"
+                             Watermark="String Path..."
+                             IsReadOnly="False"/>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- Enum Configuration Section -->
+            <StackPanel Grid.Row="1" Spacing="10" Margin="0,20,0,0">
+                <CheckBox Content="Enable Enum Generation"
+                          IsChecked="{Binding IsEnumEnabled}"/>
+                <TextBox Text="{Binding EnumFileName}"
+                         Watermark="Enum File Name..."
+                         IsEnabled="{Binding IsEnumEnabled}"/>
+            </StackPanel>
+
+            <!-- Output Paths Section -->
+            <StackPanel Grid.Row="2" Spacing="10" Margin="0,20,0,0">
+                <!-- Script Output Path -->
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding SelectScriptOutputPathCommand}"
+                            Content="Browse..."
+                            Margin="5,0,0,0"/>
+                    <TextBox Text="{Binding ScriptOutputPath}"
+                             Watermark="Script Output Path..."
+                             IsReadOnly="False"/>
+                </DockPanel>
+
+                <!-- Table Output Path -->
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding SelectTableOutputPathCommand}"
+                            Content="Browse..."
+                            Margin="5,0,0,0"/>
+                    <TextBox Text="{Binding TableOutputPath}"
+                             Watermark="Table Output Path..."
+                             IsReadOnly="False"/>
+                </DockPanel>
+                
+                <!-- String Output Path -->
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding SelectStringOutputPathCommand}"
+                            Content="Browse..."
+                            Margin="5,0,0,0"/>
+                    <TextBox Text="{Binding StringOutputPath}"
+                             Watermark="String Output Path..."
+                             IsReadOnly="False"/>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- Encryption Section -->
+            <StackPanel Grid.Row="3" Spacing="10" Margin="0,20,0,0">
+                <CheckBox Content="Enable Encryption"
+                          IsChecked="{Binding IsEncrypted}"/>
+                <TextBox Text="{Binding EncryptionKey}"
+                         Watermark="Encryption Key..."
+                         IsEnabled="{Binding IsEncrypted}"/>
+            </StackPanel>
+            
+            <!-- Operation Buttons Section -->
+            <Grid Grid.Row="4" Margin="0,20,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" 
+                        Command="{Binding ExtractAllCommand}"
+                        Content="전부 추출"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="0,0,10,0"
+                        Padding="10,5"/>
+                
+                <Button Grid.Column="1" 
+                        Command="{Binding ExtractScriptCommand}"
+                        Content="스크립트 추출"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="10,0,10,0"
+                        Padding="10,5"/>
+                
+                <Button Grid.Column="2" 
+                        Command="{Binding ExtractTableCommand}"
+                        Content="테이블 추출"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="10,0,10,0"
+                        Padding="10,5"/>
+                
+                <Button Grid.Column="3" 
+                        Command="{Binding ExtractStringCommand}"
+                        Content="스트링 추출"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="10,0,0,0"
+                        Padding="10,5"/>
+            </Grid>
+        </Grid>
+    </Panel>
+</UserControl>

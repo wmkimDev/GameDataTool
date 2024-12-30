@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="ExcelDataTool/App.axaml" value="ExcelDataTool/ExcelDataTool.csproj" />
+        <entry key="ExcelDataTool/Views/FilePathView.axaml" value="ExcelDataTool/ExcelDataTool.csproj" />
+        <entry key="ExcelDataTool/Views/InteractionView.axaml" value="ExcelDataTool/ExcelDataTool.csproj" />
+        <entry key="ExcelDataTool/Views/MainWindow.axaml" value="ExcelDataTool/ExcelDataTool.csproj" />
+        <entry key="ExcelDataTool/Views/TypeSettingView.axaml" value="ExcelDataTool/ExcelDataTool.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

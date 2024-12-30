@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:ExcelDataTool.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ExcelDataTool.Views.TypeSettingView"
+             x:DataType="vm:TypeSettingViewModel">
+
+    <Design.DataContext>
+        <vm:TypeSettingViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <!-- 상단 헤더 영역 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="타입 별칭 설정"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Margin="0,0,0,10"/>
+            <TextBlock Text="원본 타입과 사용할 별칭을 설정합니다."
+                       Opacity="0.7"
+                       Margin="0,0,0,20"/>
+        </StackPanel>
+        
+        <!-- 메인 DataGrid 영역과 버튼을 포함하는 StackPanel -->
+        <StackPanel Grid.Row="1">
+            <DataGrid ItemsSource="{Binding TypeAliasList}"
+                      SelectedItem="{Binding SelectedItem}"
+                      AutoGenerateColumns="False"
+                      CanUserSortColumns="True"
+                      GridLinesVisibility="All"
+                      BorderThickness="1"
+                      Margin="0,0,0,10"
+                      MinHeight="200"
+                      IsReadOnly="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="원본 타입"
+                                      Binding="{Binding OriginalType}"
+                                      IsReadOnly="True"
+                                      Width="*"/>
+                    <DataGridTextColumn Header="별칭 타입"
+                                      Binding="{Binding AliasType}"
+                                      Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- 버튼 -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,10,0,0">
+                <Button Content="저장"
+                        Command="{Binding SaveChangesCommand}"
+                        Margin="0,0,10,0"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
