@@ -3,16 +3,18 @@ using NPOI.SS.UserModel;
 
 namespace DataTool;
 
-public record SheetContext(
-    string TableName,
-    string SheetName,
-    ISheet Sheet,
-    int RowCount,
-    int ColumnCount,
-    List<string> PropertyTypes,
-    List<string> PropertyNames,
-    List<string> PropertyDescriptions,
-    int PKeyColumnIndex,
-    List<ForeignKeyInfo> ForeignKeys);
+public class SheetContext
+{
+    public string?               TableName            { get; set; }
+    public string?               SheetName            { get; set; }
+    public ISheet?               Sheet                { get; set; }
+    public int                  RowCount             { get; set; }
+    public int                  ColumnCount          { get; set; }
+    public List<string>?         PropertyTypes        { get; set; }
+    public List<string>?         PropertyNames        { get; set; }
+    public List<string>?         PropertyDescriptions { get; set; }
+    public int                  PKeyColumnIndex      { get; set; }
+    public List<ForeignKeyInfo>? ForeignKeys          { get; set; }
+}
 
 public record ForeignKeyInfo(int ColumnIndex, string ReferencedTableName);

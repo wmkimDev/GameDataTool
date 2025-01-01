@@ -7,155 +7,220 @@
              x:DataType="vm:FilePathViewModel"
              x:Class="ExcelDataTool.Views.InteractionView">
     
-    <!-- Panel to allow overlay positioning -->
-    <Panel>
-        <!-- Main layout grid with spacing between sections -->
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="10">
-            <!-- Input Paths Section -->
-            <StackPanel Grid.Row="0" Spacing="10">
-                <TextBlock Text="Configuration" 
-                           FontWeight="Bold" 
-                           Margin="0,0,0,5"/>
-                <Grid ColumnDefinitions="*,*,Auto">
-                    <!-- Config Loading -->
-                    <ComboBox Grid.Column="0"
-                              ItemsSource="{Binding AvailableConfigs}"
-                              SelectedItem="{Binding SelectedConfig}"
-                              Margin="0,0,5,0"
-                              HorizontalAlignment="Stretch"/>
-                    <!-- Config Saving -->
-                    <TextBox Grid.Column="1"
-                             Text="{Binding ConfigName}"
-                             Watermark="New Config Name..."
-                             Margin="5,0,5,0"/>
-                        
-                    <Button Grid.Column="2"
-                            Command="{Binding SaveConfigCommand}"
-                            Content="Save Config"
-                            Margin="5,0,0,0"/>
-                </Grid>
-                
-                <!-- Table Path Selection -->
-                <TextBlock Text="Paths" 
-                           FontWeight="Bold" 
-                           Margin="0,10,0,5"/>
-                <DockPanel>
-                    <Button DockPanel.Dock="Right"
-                            Command="{Binding SelectTablePathCommand}"
-                            Content="Browse..."
-                            Margin="5,0,0,0"/>
-                    <TextBox Text="{Binding TablePath}"
-                             Watermark="Table Path..."
-                             IsReadOnly="False"/>
-                </DockPanel>
+    <UserControl.Styles>
+        <Style Selector="Border.section">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+        <Style Selector="TextBlock.sectionHeader">
+            <Setter Property="FontWeight" Value="600"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        </Style>
+        
+    </UserControl.Styles>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Panel>
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="10">
+                <!-- 프로젝트 관리 섹션 -->
+                <Border Grid.Row="0" Classes="section">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="프로젝트 관리" Classes="sectionHeader"/>
+                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,120,Auto">
+                            <ComboBox Grid.Row="0" Grid.Column="0"
+                                    ItemsSource="{Binding AvailableProjects}"
+                                    SelectedItem="{Binding SelectedProject}"
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Stretch"
+                                    IsEnabled="{Binding HasAvailableProjects}" />
 
-                <!-- String Path Selection -->
-                <DockPanel>
-                    <Button DockPanel.Dock="Right"
-                            Command="{Binding SelectStringPathCommand}"
-                            Content="Browse..."
-                            Margin="5,0,0,0"/>
-                    <TextBox Text="{Binding StringPath}"
-                             Watermark="String Path..."
-                             IsReadOnly="False"/>
-                </DockPanel>
-            </StackPanel>
+                            <TextBox Grid.Row="0" Grid.Column="1"
+                                    Text="{Binding ProjectVersion}"
+                                    Watermark="버전..."
+                                    IsEnabled="False"
+                                    Margin="5,0,5,0" />
 
-            <!-- Enum Configuration Section -->
-            <StackPanel Grid.Row="1" Spacing="10" Margin="0,20,0,0">
-                <CheckBox Content="Enable Enum Generation"
-                          IsChecked="{Binding IsEnumEnabled}"/>
-                <TextBox Text="{Binding EnumFileName}"
-                         Watermark="Enum File Name..."
-                         IsEnabled="{Binding IsEnumEnabled}"/>
-            </StackPanel>
+                            <Button Grid.Row="0" Grid.Column="2"
+                                    Command="{Binding DeleteProjectCommand}"
+                                    Content="프로젝트 삭제"
+                                    Margin="5,0,0,0" />
 
-            <!-- Output Paths Section -->
-            <StackPanel Grid.Row="2" Spacing="10" Margin="0,20,0,0">
-                <!-- Script Output Path -->
-                <DockPanel>
-                    <Button DockPanel.Dock="Right"
-                            Command="{Binding SelectScriptOutputPathCommand}"
-                            Content="Browse..."
-                            Margin="5,0,0,0"/>
-                    <TextBox Text="{Binding ScriptOutputPath}"
-                             Watermark="Script Output Path..."
-                             IsReadOnly="False"/>
-                </DockPanel>
+                            <Grid Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0"
+                                ColumnDefinitions="*,Auto"
+                                Margin="0,10,0,0">
+                                <TextBox Grid.Column="0"
+                                        Text="{Binding NewProjectName}"
+                                        Watermark="새 프로젝트 이름..."
+                                        Margin="0,0,5,0" />
+                                <Button Grid.Column="1"
+                                        Command="{Binding CreateProjectCommand}"
+                                        Content="프로젝트 생성"
+                                        Margin="5,0,0,0" />
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                <!-- Table Output Path -->
-                <DockPanel>
-                    <Button DockPanel.Dock="Right"
-                            Command="{Binding SelectTableOutputPathCommand}"
-                            Content="Browse..."
-                            Margin="5,0,0,0"/>
-                    <TextBox Text="{Binding TableOutputPath}"
-                             Watermark="Table Output Path..."
-                             IsReadOnly="False"/>
-                </DockPanel>
-                
-                <!-- String Output Path -->
-                <DockPanel>
-                    <Button DockPanel.Dock="Right"
-                            Command="{Binding SelectStringOutputPathCommand}"
-                            Content="Browse..."
-                            Margin="5,0,0,0"/>
-                    <TextBox Text="{Binding StringOutputPath}"
-                             Watermark="String Output Path..."
-                             IsReadOnly="False"/>
-                </DockPanel>
-            </StackPanel>
+                <!-- 설정 관리 섹션 -->
+                <Border Grid.Row="1" Classes="section">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="설정 관리" Classes="sectionHeader"/>
+                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto">
+                            <ComboBox Grid.Row="0" Grid.Column="0"
+                                    ItemsSource="{Binding AvailableConfigs}"
+                                    SelectedItem="{Binding SelectedConfig}"
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Stretch"
+                                    IsEnabled="{Binding HasAvailableConfigs}" />
 
-            <!-- Encryption Section -->
-            <StackPanel Grid.Row="3" Spacing="10" Margin="0,20,0,0">
-                <CheckBox Content="Enable Encryption"
-                          IsChecked="{Binding IsEncrypted}"/>
-                <TextBox Text="{Binding EncryptionKey}"
-                         Watermark="Encryption Key..."
-                         IsEnabled="{Binding IsEncrypted}"/>
-            </StackPanel>
-            
-            <!-- Operation Buttons Section -->
-            <Grid Grid.Row="4" Margin="0,20,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <Button Grid.Column="0" 
-                        Command="{Binding ExtractAllCommand}"
-                        Content="전부 추출"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        Margin="0,0,10,0"
-                        Padding="10,5"/>
-                
-                <Button Grid.Column="1" 
-                        Command="{Binding ExtractScriptCommand}"
-                        Content="스크립트 추출"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        Margin="10,0,10,0"
-                        Padding="10,5"/>
-                
-                <Button Grid.Column="2" 
-                        Command="{Binding ExtractTableCommand}"
-                        Content="테이블 추출"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        Margin="10,0,10,0"
-                        Padding="10,5"/>
-                
-                <Button Grid.Column="3" 
-                        Command="{Binding ExtractStringCommand}"
-                        Content="스트링 추출"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        Margin="10,0,0,0"
-                        Padding="10,5"/>
+                            <Button Grid.Row="0" Grid.Column="1"
+                                    Command="{Binding UpdateConfigCommand}"
+                                    Content="수정"
+                                    Margin="5,0,5,0" />
+                            <Button Grid.Row="0" Grid.Column="2"
+                                    Command="{Binding DeleteConfigCommand}"
+                                    Content="삭제"
+                                    Margin="5,0,0,0" />
+
+                            <Grid Grid.Row="1" Grid.ColumnSpan="3"
+                                ColumnDefinitions="*,Auto"
+                                Margin="0,10,0,0">
+                                <TextBox Grid.Column="0"
+                                        Text="{Binding NewConfigName}"
+                                        Watermark="새 설정 이름..."
+                                        Margin="0,0,5,0" />
+                                <Button Grid.Column="1"
+                                        Command="{Binding CreateConfigCommand}"
+                                        Content="설정 생성"
+                                        Margin="5,0,0,0" />
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 테이블 경로 섹션 -->
+                <Border Grid.Row="2" Classes="section">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="테이블 경로" Classes="sectionHeader"/>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right"
+                                    Command="{Binding SelectTablePathCommand}"
+                                    Content="찾아보기..."
+                                    Margin="5,0,0,0" />
+                            <TextBox Text="{Binding TablePath}"
+                                    Watermark="테이블 경로..."
+                                    IsReadOnly="False" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 특수 파일 설정 섹션 -->
+                <Border Grid.Row="3" Classes="section">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="특수 파일 설정" Classes="sectionHeader"/>
+                        <DockPanel>
+                            <TextBox Text="{Binding StringFileName}"
+                                    Watermark="문자열 파일 이름..."
+                                    IsReadOnly="False" />
+                        </DockPanel>
+                        <CheckBox Content="열거형 생성 활성화"
+                                IsChecked="{Binding IsEnumEnabled}" />
+                        <TextBox Text="{Binding EnumFileName}"
+                                Watermark="열거형 파일 이름..."
+                                IsEnabled="{Binding IsEnumEnabled}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 출력 경로 섹션 -->
+                <Border Grid.Row="4" Classes="section">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="출력 경로 설정" Classes="sectionHeader"/>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right"
+                                    Command="{Binding SelectScriptOutputPathCommand}"
+                                    Content="찾아보기..."
+                                    Margin="5,0,0,0" />
+                            <TextBox Text="{Binding ScriptOutputPath}"
+                                    Watermark="스크립트 출력 경로..."
+                                    IsReadOnly="False" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right"
+                                    Command="{Binding SelectTableOutputPathCommand}"
+                                    Content="찾아보기..."
+                                    Margin="5,0,0,0" />
+                            <TextBox Text="{Binding TableOutputPath}"
+                                    Watermark="테이블 출력 경로..."
+                                    IsReadOnly="False" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right"
+                                    Command="{Binding SelectStringOutputPathCommand}"
+                                    Content="찾아보기..."
+                                    Margin="5,0,0,0" />
+                            <TextBox Text="{Binding StringOutputPath}"
+                                    Watermark="문자열 출력 경로..."
+                                    IsReadOnly="False" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 암호화 설정 섹션 -->
+                <Border Grid.Row="5" Classes="section">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="암호화 설정" Classes="sectionHeader"/>
+                        <CheckBox Content="암호화 활성화"
+                                IsChecked="{Binding IsEncrypted}" />
+                        <TextBox Text="{Binding EncryptionKey}"
+                                Watermark="암호화 키..."
+                                IsEnabled="{Binding IsEncrypted}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 작업 버튼 섹션 -->
+                <Border Grid.Row="6" Classes="section">
+                    <Grid ColumnDefinitions="*,*,*,*">
+                        <Button Grid.Column="0"
+                                Command="{Binding ExtractAllCommand}"
+                                Content="전체 추출"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Margin="0,0,10,0"
+                                Padding="10,5" />
+
+                        <Button Grid.Column="1"
+                                Command="{Binding ExtractScriptCommand}"
+                                Content="스크립트 추출"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Margin="10,0,10,0"
+                                Padding="10,5" />
+
+                        <Button Grid.Column="2"
+                                Command="{Binding ExtractTableCommand}"
+                                Content="테이블 추출"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Margin="10,0,10,0"
+                                Padding="10,5" />
+
+                        <Button Grid.Column="3"
+                                Command="{Binding ExtractStringCommand}"
+                                Content="문자열 추출"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Margin="10,0,0,0"
+                                Padding="10,5" />
+                    </Grid>
+                </Border>
             </Grid>
-        </Grid>
-    </Panel>
+        </Panel>
+    </ScrollViewer>
 </UserControl>

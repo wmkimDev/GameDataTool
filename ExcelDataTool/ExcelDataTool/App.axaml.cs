@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using ExcelDataTool.Core;
 using ExcelDataTool.ViewModels;
 using ExcelDataTool.Views;
 

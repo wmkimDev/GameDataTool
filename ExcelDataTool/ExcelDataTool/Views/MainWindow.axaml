@@ -4,68 +4,81 @@
         xmlns:vm="using:ExcelDataTool.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:ExcelDataTool.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ExcelDataTool.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         x:DataType="vm:MainWindowViewModel"
         x:CompileBindings="true"
-        Height="1100" Width="800"
+        Height="1000" Width="1400"
         Title="DataTool">
 
     <Design.DataContext>
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="*, Auto">
-        <TabControl Grid.Row="0">
-            <TabItem Header="Path Settings">
-                <v:InteractionView DataContext="{Binding FilePathModel}" />
-            </TabItem>
-            <TabItem Header="Type Settings">
-                <v:TypeSettingView DataContext="{Binding TypeSettingModel}" />
-            </TabItem>
-        </TabControl>
-        
-        <Border Grid.Row="1"
+    <Grid ColumnDefinitions="2*, Auto, 1*">
+        <Grid Grid.Column="0" RowDefinitions="*">
+            <TabControl>
+                <TabItem Header="Path Settings">
+                    <v:InteractionView DataContext="{Binding FilePathModel}" />
+                </TabItem>
+                <TabItem Header="Type Settings">
+                    <v:TypeSettingView DataContext="{Binding TypeSettingModel}" />
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <GridSplitter Grid.Column="1"
+                      Width="5"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Center"
+                      Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+
+        <Border Grid.Column="2"
                 Name="ConsoleOverlay"
-                Height="400"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
-                Margin="5,5,5,5"
-                BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                Margin="5"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
                 BorderThickness="1"
-                CornerRadius="3"
-                BoxShadow="2 2 4 0 #40000000"
-                Background="{DynamicResource SystemChromeMediumLowColor}">
+                CornerRadius="4"
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}">
+
             <Grid RowDefinitions="Auto,*">
-                <!-- Console Header with Clear Button -->
                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Height="35">
                     <TextBlock Grid.Column="0"
-                               Text="Console Output"
-                               FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Margin="10,5,5,5"/>
-           
+                             Text="Console Output"
+                             FontWeight="SemiBold"
+                             VerticalAlignment="Center"
+                             Margin="10,5,5,5" 
+                             Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
                     <Button Grid.Column="1"
                             Command="{Binding ClearConsoleCommand}"
                             Content="Clear"
                             VerticalAlignment="Center"
                             Margin="5,5,5,2"
-                            Padding="4,4"/>
+                            Padding="8,4" />
                 </Grid>
-                
-                <!-- Console Output -->
+
                 <ScrollViewer Grid.Row="1"
+                              x:Name="ConsoleScrollViewer"
                               Margin="5"
-                              HorizontalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding ConsoleOutput}"
-                                  Background="{DynamicResource SystemBaseLowColor}">
+                    <ItemsControl x:Name="ConsoleItemsControl"
+                                  ItemsSource="{Binding ConsoleOutput}"
+                                  Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                  HorizontalAlignment="Stretch">
+                        <ItemsControl.Resources>
+                            <converters:LogTypeToColorConverter x:Key="LogTypeToColorConverter"/>
+                        </ItemsControl.Resources>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}"
-                                           FontFamily="Consolas"
-                                           Margin="5,2"/>
+                                <SelectableTextBlock Text="{Binding}"
+                                                     Foreground="{Binding Type, Converter={StaticResource LogTypeToColorConverter}}"
+                                                     TextWrapping="Wrap"
+                                                     MaxWidth="{Binding Path=Bounds.Width, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+                                                     xml:space="preserve"
+                                                     Margin="8,2" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -74,4 +87,3 @@
         </Border>
     </Grid>
 </Window>
-

@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 namespace ExcelDataTool.Models;
 
 public class ConfigurationData
 {
     public string? TablePath { get; set; }
-    public string? StringPath { get; set; }
+    public string? StringFileName { get; set; }
     public bool IsEnumEnabled { get; set; }
     public string? EnumFileName { get; set; }
     public string? ScriptOutputPath { get; set; }
@@ -13,8 +15,19 @@ public class ConfigurationData
     public string? EncryptionKey { get; set; }
 }
 
-// 마지막 설정 정보를 저장하는 클래스
-public class LastConfigInfo
+public class ProjectData
 {
-    public string ConfigName { get; set; } = string.Empty;
+    public string? Name { get; set; } = string.Empty;
+    public string? Version { get; set; } = string.Empty;
+}
+
+public class MemoryCache
+{
+    public string? LastProject { get; set; } = string.Empty;
+    public Dictionary<string, string> LastConfigurations { get; set; } = new();
+}
+
+public class ProjectSettings
+{
+    public List<ProjectData> Projects { get; set; } = new();
 }

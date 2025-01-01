@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ExcelDataTool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9aa8e62828d8688c6b5113843719f7d15b7bdb83")]
 [assembly: System.Reflection.AssemblyProductAttribute("ExcelDataTool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ExcelDataTool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

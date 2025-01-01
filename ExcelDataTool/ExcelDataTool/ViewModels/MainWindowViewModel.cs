@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using ExcelDataTool.Core;
 using ReactiveUI;
 
 namespace ExcelDataTool.ViewModels
@@ -9,25 +9,14 @@ namespace ExcelDataTool.ViewModels
     {
         public MainWindowViewModel()
         {
-            ConsoleOutput = new ObservableCollection<string>();
-            ClearConsoleCommand = ReactiveCommand.Create(ClearConsole);
-            FilePathModel = new FilePathViewModel(message => ConsoleOutput.Add(message));
+            ClearConsoleCommand = ReactiveCommand.Create(Logger.Clear);
         }
         
-        public FilePathViewModel FilePathModel { get; }
+        public FilePathViewModel FilePathModel { get; } = new FilePathViewModel();
         public TypeSettingViewModel TypeSettingModel { get; } = new TypeSettingViewModel();
         
-        private ObservableCollection<string> _consoleOutput;
-        public ObservableCollection<string> ConsoleOutput
-        {
-            get => _consoleOutput;
-            set => this.RaiseAndSetIfChanged(ref _consoleOutput, value);
-        }
+        public ObservableCollection<LogMessage> ConsoleOutput => Logger.Messages;
         
         public ICommand ClearConsoleCommand { get; }
-        private void ClearConsole()
-        {
-            ConsoleOutput.Clear();
-        }
     }
 }

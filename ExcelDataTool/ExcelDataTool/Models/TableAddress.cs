@@ -20,11 +20,19 @@ public class TableAddress
             CellAddress
         };
 
-        return "[Table Address: " + string.Join(".", parts.Where(p => !string.IsNullOrEmpty(p))) + "]";
+        return "[" + string.Join("/", parts.Where(p => !string.IsNullOrEmpty(p))) + "]";
+    }
+    
+    public void Reset()
+    {
+        TableName   = null;
+        SheetName   = null;
+        ColumnName  = null;
+        CellAddress = null;
     }
     
     public void ThrowException(string message)
     {
-        throw new Exception(ToString() + "-" + message);
+        throw new Exception(ToString() + " - " + message);
     }
 }

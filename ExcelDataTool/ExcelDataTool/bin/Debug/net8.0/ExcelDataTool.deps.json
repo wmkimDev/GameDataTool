@@ -15,7 +15,9 @@
           "Avalonia.ReactiveUI": "11.2.3",
           "Avalonia.Themes.Fluent": "11.2.3",
           "CommunityToolkit.Mvvm": "8.2.1",
-          "NPOI": "2.7.2"
+          "MessageBox.Avalonia": "3.2.0",
+          "NPOI": "2.7.2",
+          "Semi.Avalonia": "11.2.1.3"
         },
         "runtime": {
           "ExcelDataTool.dll": {}
@@ -289,6 +291,17 @@
           }
         }
       },
+      "DialogHost.Avalonia/0.8.1": {
+        "dependencies": {
+          "Avalonia": "11.2.3"
+        },
+        "runtime": {
+          "lib/netstandard2.0/DialogHost.Avalonia.dll": {
+            "assemblyVersion": "0.8.1.0",
+            "fileVersion": "0.8.1.0"
+          }
+        }
+      },
       "DynamicData/8.4.1": {
         "dependencies": {
           "System.Reactive": "6.0.1"
@@ -392,6 +405,18 @@
           }
         }
       },
+      "MessageBox.Avalonia/3.2.0": {
+        "dependencies": {
+          "Avalonia": "11.2.3",
+          "DialogHost.Avalonia": "0.8.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/MsBox.Avalonia.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "MicroCom.Runtime/0.11.0": {
         "runtime": {
           "lib/net5.0/MicroCom.Runtime.dll": {
@@ -451,6 +476,17 @@
           "lib/net8.0/ReactiveUI.dll": {
             "assemblyVersion": "20.1.0.0",
             "fileVersion": "20.1.1.46356"
+          }
+        }
+      },
+      "Semi.Avalonia/11.2.1.3": {
+        "dependencies": {
+          "Avalonia": "11.2.3"
+        },
+        "runtime": {
+          "lib/net8.0/Semi.Avalonia.dll": {
+            "assemblyVersion": "11.2.1.3",
+            "fileVersion": "11.2.1.3"
           }
         }
       },
@@ -760,6 +796,13 @@
       "path": "communitytoolkit.mvvm/8.2.1",
       "hashPath": "communitytoolkit.mvvm.8.2.1.nupkg.sha512"
     },
+    "DialogHost.Avalonia/0.8.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RLBOMqjJPgSmwe0i1pzX3Q7Pn0i4xE/E1b774krd4VyEkaorz1AYMdYQHyIfuhtQv5NntZyS0MuQbxJl/PhzBg==",
+      "path": "dialoghost.avalonia/0.8.1",
+      "hashPath": "dialoghost.avalonia.0.8.1.nupkg.sha512"
+    },
     "DynamicData/8.4.1": {
       "type": "package",
       "serviceable": true,
@@ -823,6 +866,13 @@
       "path": "mathnet.numerics.signed/5.0.0",
       "hashPath": "mathnet.numerics.signed.5.0.0.nupkg.sha512"
     },
+    "MessageBox.Avalonia/3.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-f4iJxmyF0fKoJQdMCiSSRitP/niUl4g1mSBLGQ9+/58ZXrhjUImnuLdbuBY36n+JpMegy4FA62s588yJkbbjCA==",
+      "path": "messagebox.avalonia/3.2.0",
+      "hashPath": "messagebox.avalonia.3.2.0.nupkg.sha512"
+    },
     "MicroCom.Runtime/0.11.0": {
       "type": "package",
       "serviceable": true,
@@ -857,6 +907,13 @@
       "sha512": "sha512-9hNPknWjijnaSWs6auypoXqUptPZcRpUypF+cf1zD50fgW+SEoQda502N3fVZ2eWPcaiUad+z6GaLwOWmUVHNw==",
       "path": "reactiveui/20.1.1",
       "hashPath": "reactiveui.20.1.1.nupkg.sha512"
+    },
+    "Semi.Avalonia/11.2.1.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YgMekjBLMvMBQhSdvedEPkvGkBlkM4N9UIwgP0CJj32czP9GA7YbTs9kUXXCVL3dY2umyln4+irgS2JFQUPA6Q==",
+      "path": "semi.avalonia/11.2.1.3",
+      "hashPath": "semi.avalonia.11.2.1.3.nupkg.sha512"
     },
     "SharpZipLib/1.4.2": {
       "type": "package",

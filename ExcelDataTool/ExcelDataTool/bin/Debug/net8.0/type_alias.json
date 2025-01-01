@@ -1,0 +1,30 @@
+[
+  {
+    "OriginalType": "string",
+    "AliasType": "string"
+  },
+  {
+    "OriginalType": "int",
+    "AliasType": "int"
+  },
+  {
+    "OriginalType": "long",
+    "AliasType": "long"
+  },
+  {
+    "OriginalType": "float",
+    "AliasType": "float"
+  },
+  {
+    "OriginalType": "double",
+    "AliasType": "double"
+  },
+  {
+    "OriginalType": "bool",
+    "AliasType": "bool"
+  },
+  {
+    "OriginalType": "DateTime",
+    "AliasType": "DateTime"
+  }
+]
