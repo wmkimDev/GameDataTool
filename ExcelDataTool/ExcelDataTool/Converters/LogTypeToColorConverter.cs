@@ -16,7 +16,7 @@ public class LogTypeToColorConverter : IValueConverter
                 LogMessageType.Info    => Brushes.Black,
                 LogMessageType.Warning => Brushes.DarkOrange,
                 LogMessageType.Error   => Brushes.Red,
-                LogMessageType.Success => Brushes.ForestGreen,
+                LogMessageType.Success => Brushes.Green,
                 _                      => Brushes.Black
             };
         }

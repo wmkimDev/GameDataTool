@@ -2,20 +2,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ExcelDataTool.App"
              xmlns:local="using:ExcelDataTool"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Light">
 
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
              
     <Application.Styles>
-         <FluentTheme>
-             <FluentTheme.Palettes>
-                 <ColorPaletteResources x:Key="Light" Accent="#ff8961cc" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ffeeceff" BaseMedium="#ffa987bc" BaseMediumHigh="#ff7b5890" BaseMediumLow="#ff9270a6" ChromeAltLow="#ff7b5890" ChromeBlackHigh="Black" ChromeBlackLow="#ffeeceff" ChromeBlackMedium="#ff7b5890" ChromeBlackMediumLow="#ffa987bc" ChromeDisabledHigh="#ffeeceff" ChromeDisabledLow="#ffa987bc" ChromeGray="#ff9270a6" ChromeHigh="#ffeeceff" ChromeLow="#fffeeaff" ChromeMedium="#fffbe4ff" ChromeMediumLow="#fffeeaff" ChromeWhite="White" ListLow="#fffbe4ff" ListMedium="#ffeeceff" RegionColor="#fffef6ff" />
-                 <ColorPaletteResources x:Key="Dark" Accent="#ff8961cc" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff64576b" BaseMedium="#ffb6aabc" BaseMediumHigh="#ffcbbfd0" BaseMediumLow="#ff8d8193" ChromeAltLow="#ffcbbfd0" ChromeBlackHigh="Black" ChromeBlackLow="#ffcbbfd0" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff64576b" ChromeDisabledLow="#ffb6aabc" ChromeGray="#ffa295a8" ChromeHigh="#ffa295a8" ChromeLow="#ff332041" ChromeMedium="#ff3f2e4b" ChromeMediumLow="#ff584960" ChromeWhite="White" ListLow="#ff3f2e4b" ListMedium="#ff64576b" RegionColor="#ff262738" />
-             </FluentTheme.Palettes>
-         </FluentTheme>
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#ff808080" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ffeeeeee" BaseMedium="#ffa9a9a9" BaseMediumHigh="#ff7b7b7b" BaseMediumLow="#ff929292" ChromeAltLow="#ff7b7b7b" ChromeBlackHigh="Black" ChromeBlackLow="#ffeeeeee" ChromeBlackMedium="#ff7b7b7b" ChromeBlackMediumLow="#ffa9a9a9" ChromeDisabledHigh="#ffeeeeee" ChromeDisabledLow="#ffa9a9a9" ChromeGray="#ff929292" ChromeHigh="#ffeeeeee" ChromeLow="#fff5f5f5" ChromeMedium="#fff0f0f0" ChromeMediumLow="#fff5f5f5" ChromeWhite="White" ListLow="#fff0f0f0" ListMedium="#ffeeeeee" RegionColor="#fffafafa" />
+                <ColorPaletteResources x:Key="Dark" Accent="#ff808080" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff404040" BaseMedium="#ffb6b6b6" BaseMediumHigh="#ffcbcbcb" BaseMediumLow="#ff8d8d8d" ChromeAltLow="#ffcbcbcb" ChromeBlackHigh="Black" ChromeBlackLow="#ffcbcbcb" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff404040" ChromeDisabledLow="#ffb6b6b6" ChromeGray="#ffa2a2a2" ChromeHigh="#ffa2a2a2" ChromeLow="#ff333333" ChromeMedium="#ff3f3f3f" ChromeMediumLow="#ff585858" ChromeWhite="White" ListLow="#ff3f3f3f" ListMedium="#ff404040" RegionColor="#ff262626" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
         
         <Style Selector="TextBlock">
             <Setter Property="FontFamily" Value="/Assets/Fonts/omyu pretty.ttf#omyu pretty"/>

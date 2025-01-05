@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using DataTool;
 using ExcelDataTool.Core;
 using ExcelDataTool.Models;
 using MsBox.Avalonia;
@@ -22,6 +21,94 @@ public class FilePathViewModel : ViewModelBase
     private readonly string          _memoryCachePath;
     private readonly ProjectSettings _projectSettings;
     private readonly MemoryCache     _memoryCache;
+
+    private SheetContextCollector _collector           = null!;
+    private GameDataExtractor     _dataExtractor       = null!;
+    private CodeGenerator         _codeGenerator       = null!;
+    private StringDataExtractor   _stringDataExtractor = null!;
+
+    private bool Validate(params string[] propertyNames)
+    {
+        var isValid = true;
+        foreach (var propertyName in propertyNames)
+        {
+            var error = ValidateProperty(propertyName);
+            if (!string.IsNullOrEmpty(error))
+            {
+                Logger.Error(error);
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+
+    private string ValidateProperty(string propertyName)
+    {
+        switch (propertyName)
+        {
+            case nameof(TablePath):
+                if (string.IsNullOrWhiteSpace(TablePath))
+                    return "테이블 경로가 지정되지 않았습니다.";
+                break;
+            case nameof(EncryptionKey):
+                if (IsEncrypted)
+                {
+                    if (string.IsNullOrWhiteSpace(EncryptionKey))
+                        return "암호화가 활성화되었지만 암호화 키가 지정되지 않았습니다.";
+                    if (!DataEncryption.ValidateKey(EncryptionKey))
+                        return "암호화 키가 유효하지 않습니다. 최소 8자 이상이어야 합니다.";
+                }
+
+                break;
+            case nameof(EnumFileName):
+                if (IsEnumEnabled && string.IsNullOrWhiteSpace(EnumFileName))
+                    return "열거형이 활성화되었지만 열거형 파일 이름이 지정되지 않았습니다.";
+                break;
+
+            case nameof(ScriptOutputPath):
+                if (string.IsNullOrWhiteSpace(ScriptOutputPath))
+                    return "스크립트 출력 경로가 지정되지 않았습니다.";
+                break;
+
+            case nameof(TableOutputPath):
+                if (string.IsNullOrWhiteSpace(TableOutputPath))
+                    return "테이블 출력 경로가 지정되지 않았습니다.";
+                break;
+
+            case nameof(StringOutputPath):
+                if (string.IsNullOrWhiteSpace(StringOutputPath))
+                    return "문자열 출력 경로가 지정되지 않았습니다.";
+                break;
+
+            case nameof(StringFileName):
+                if (string.IsNullOrWhiteSpace(StringFileName))
+                    return "문자열 파일 이름이 지정되지 않았습니다.";
+                break;
+
+            case nameof(NewProjectName):
+                if (_projectSettings.Projects.Any(p => p.Name == NewProjectName))
+                    return $"프로젝트 '{NewProjectName}'이(가) 이미 존재합니다.";
+                break;
+
+            case nameof(NewConfigName):
+                if (AvailableConfigs.Contains(NewConfigName!))
+                    return $"설정 '{NewConfigName}'이(가) 이미 존재합니다.";
+                break;
+
+            case nameof(SelectedProject):
+                if (string.IsNullOrWhiteSpace(SelectedProject))
+                    return "프로젝트가 선택되지 않았습니다.";
+                break;
+
+            case nameof(SelectedConfig):
+                if (string.IsNullOrWhiteSpace(SelectedConfig))
+                    return "설정이 선택되지 않았습니다.";
+                break;
+        }
+
+        return string.Empty;
+    }
 
     public FilePathViewModel()
     {
@@ -752,17 +839,73 @@ public class FilePathViewModel : ViewModelBase
         String
     }
 
-    // Command properties for operation buttons
     public ICommand ExtractAllCommand    { get; }
     public ICommand ExtractScriptCommand { get; }
     public ICommand ExtractTableCommand  { get; }
     public ICommand ExtractStringCommand { get; }
 
+    private bool ValidateExtraction(ExtractionType type)
+    {
+        if (!Validate(nameof(SelectedProject)))
+            return false;
+
+        if (!Validate(nameof(SelectedConfig)))
+            return false;
+
+        List<string> propertiesToValidate = [nameof(TablePath)];
+
+        if (IsEncrypted)
+            propertiesToValidate.Add(nameof(EncryptionKey));
+
+        if (type != ExtractionType.String && IsEnumEnabled)
+            propertiesToValidate.Add(nameof(EnumFileName));
+
+        switch (type)
+        {
+            case ExtractionType.All:
+                propertiesToValidate.AddRange(new[]
+                {
+                    nameof(ScriptOutputPath),
+                    nameof(TableOutputPath),
+                    nameof(StringOutputPath),
+                    nameof(StringFileName)
+                });
+                break;
+            case ExtractionType.Script:
+                propertiesToValidate.Add(nameof(ScriptOutputPath));
+                break;
+            case ExtractionType.Table:
+                propertiesToValidate.Add(nameof(TableOutputPath));
+                break;
+            case ExtractionType.String:
+                propertiesToValidate.AddRange(new[]
+                {
+                    nameof(StringOutputPath),
+                    nameof(StringFileName)
+                });
+                break;
+        }
+
+        return Validate(propertiesToValidate.ToArray());
+    }
+
+    private Dictionary<eSpecialFileType, string> GetSpecialFiles()
+    {
+        var specialFiles = new Dictionary<eSpecialFileType, string>();
+
+        if (IsEnumEnabled)
+            specialFiles[eSpecialFileType.Enum] = EnumFileName!;
+
+        if (!string.IsNullOrWhiteSpace(StringFileName))
+            specialFiles[eSpecialFileType.String] = StringFileName!;
+
+        return specialFiles;
+    }
+
     private async Task ExtractAsync(ExtractionType type)
     {
-        // Clear console at the start
         Logger.Clear();
-        
+
         var operationName = type switch
         {
             ExtractionType.All    => "전체",
@@ -776,177 +919,67 @@ public class FilePathViewModel : ViewModelBase
         {
             Logger.Info($"{operationName} 추출 작업을 시작합니다...");
 
-            // Perform all validations before starting any operation
             if (!ValidateExtraction(type))
             {
                 return;
             }
 
-            if (type == ExtractionType.String)
+            _collector = new SheetContextCollector();
+
+            switch (type)
             {
-                await TryExtractStringData();
+                case ExtractionType.All:
+                    _collector.CollectAllContextWithoutSpecialFiles(TablePath, GetSpecialFiles());
+
+                    // 스크립트 추출
+                    _codeGenerator = new CodeGenerator(_collector.NormalSheetContexts, ScriptOutputPath!);
+                    _codeGenerator.GenerateCode();
+
+                    // 테이블 추출
+                    _dataExtractor = new GameDataExtractor(_collector.NormalSheetContexts);
+                    _dataExtractor.ValidateGameDataSheetContext();
+                    _dataExtractor.ExtractTableData();
+
+                    // 문자열 추출
+                    _collector.CollectStringContext(TablePath, StringFileName!);
+                    _stringDataExtractor = new StringDataExtractor(_collector.StringSheetContexts);
+                    _stringDataExtractor.ValidateAndExtractData();
+
+                    // 한번에 저장
+                    await Task.WhenAll(
+                        _dataExtractor.SaveToJson(TableOutputPath!, _isEncrypted, EncryptionKey!),
+                        _stringDataExtractor.SaveToJson(StringOutputPath!, _isEncrypted, EncryptionKey!)
+                    );
+                    break;
+
+                case ExtractionType.Script:
+                    _collector.CollectAllContextWithoutSpecialFiles(TablePath, GetSpecialFiles());
+                    _codeGenerator = new CodeGenerator(_collector.NormalSheetContexts, ScriptOutputPath!);
+                    _codeGenerator.GenerateCode();
+                    break;
+
+                case ExtractionType.Table:
+                    _collector.CollectAllContextWithoutSpecialFiles(TablePath, GetSpecialFiles());
+                    _dataExtractor = new GameDataExtractor(_collector.NormalSheetContexts);
+                    _dataExtractor.ValidateGameDataSheetContext();
+                    _dataExtractor.ExtractTableData();
+                    await _dataExtractor.SaveToJson(TableOutputPath!, _isEncrypted, EncryptionKey!);
+                    break;
+
+                case ExtractionType.String:
+                    _collector.CollectStringContext(TablePath, StringFileName!);
+                    _stringDataExtractor = new StringDataExtractor(_collector.StringSheetContexts);
+                    _stringDataExtractor.ValidateAndExtractData();
+                    await _stringDataExtractor.SaveToJson(StringOutputPath!, _isEncrypted, EncryptionKey!);
+                    break;
             }
-            else
-            {
-                // Collect context (except for string extraction)
-                var collector = new SheetContextCollector();
-                collector.CollectAll(TablePath, IsEnumEnabled ? EnumFileName : null);
-            
-                // Perform extraction based on collected context
-                switch (type)
-                {
-                    case ExtractionType.All:
-                        await TryExtractScriptData(collector.SheetContexts);
-                        await TryExtractTableData(collector.SheetContexts);
-                        await TryExtractStringData();
-                        break;
-            
-                    case ExtractionType.Script:
-                        await TryExtractScriptData(collector.SheetContexts);
-                        break;
-            
-                    case ExtractionType.Table:
-                        await TryExtractTableData(collector.SheetContexts);
-                        break;
-                }
-            }
-        
+
             Logger.Success($"{operationName} 추출이 완료되었습니다.");
         }
         catch (Exception ex)
         {
             Logger.Error($"{operationName} 추출 중 오류가 발생했습니다 > \n {ex.Message}");
         }
-    }
-
-    private async Task TryExtractScriptData(IEnumerable<SheetContext> sheetContexts)
-    {
-        if (string.IsNullOrEmpty(ScriptOutputPath))
-        {
-            throw new Exception("스크립트 출력 경로가 지정되지 않았습니다.");
-        }
-
-        // await ExtractScriptData(sheetContexts);
-    }
-
-    private async Task TryExtractTableData(IEnumerable<SheetContext> sheetContexts)
-    {
-        if (string.IsNullOrEmpty(TableOutputPath))
-        {
-            throw new Exception("테이블 출력 경로가 지정되지 않았습니다.");
-        }
-
-        // await ExtractTableData(sheetContexts);
-    }
-
-    private async Task TryExtractStringData()
-    {
-        if (string.IsNullOrEmpty(StringFileName))
-        {
-            throw new Exception("문자열 파일 이름이 지정되지 않았습니다.");
-        }
-
-        if (string.IsNullOrEmpty(StringOutputPath))
-        {
-            throw new Exception("문자열 출력 경로가 지정되지 않았습니다.");
-        }
-
-        // TODO : Implement string extraction
-    }
-
-
-    private bool ValidateExtraction(ExtractionType type)
-    {
-        if (string.IsNullOrWhiteSpace(SelectedProject))
-        {
-            Logger.Error("프로젝트가 선택되지 않았습니다.");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(SelectedConfig))
-        {
-            Logger.Error("설정이 선택되지 않았습니다.");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(TablePath))
-        {
-            Logger.Error("테이블 경로가 지정되지 않았습니다.");
-            return false;
-        }
-
-        if (IsEncrypted && string.IsNullOrWhiteSpace(EncryptionKey))
-        {
-            Logger.Error("암호화가 활성화되었지만 암호화 키가 지정되지 않았습니다.");
-            return false;
-        }
-
-        if (IsEnumEnabled && string.IsNullOrWhiteSpace(EnumFileName))
-        {
-            Logger.Error("열거형이 활성화되었지만 열거형 파일 이름이 지정되지 않았습니다.");
-            return false;
-        }
-
-        switch (type)
-        {
-            case ExtractionType.All:
-                return ValidateAllPaths();
-
-            case ExtractionType.Script:
-                if (string.IsNullOrWhiteSpace(ScriptOutputPath))
-                {
-                    Logger.Error("스크립트 출력 경로가 지정되지 않았습니다.");
-                    return false;
-                }
-                break;
-            case ExtractionType.Table:
-                if (string.IsNullOrWhiteSpace(TableOutputPath))
-                {
-                    Logger.Error("테이블 출력 경로가 지정되지 않았습니다.");
-                    return false;
-                }
-                break;
-            case ExtractionType.String:
-                if (string.IsNullOrWhiteSpace(StringFileName))
-                {
-                    Logger.Error("문자열 파일 이름이 지정되지 않았습니다.");
-                    return false;
-                }
-
-                if (string.IsNullOrWhiteSpace(StringOutputPath))
-                {
-                    Logger.Error("문자열 출력 경로가 지정되지 않았습니다.");
-                    return false;
-                }
-                break;
-        }
-
-        return true;
-    }
-
-    private bool ValidateAllPaths()
-    {
-        var missingPaths = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(ScriptOutputPath))
-            missingPaths.Add("스크립트 출력 경로");
-
-        if (string.IsNullOrWhiteSpace(TableOutputPath))
-            missingPaths.Add("테이블 출력 경로");
-
-        if (string.IsNullOrWhiteSpace(StringOutputPath))
-            missingPaths.Add("문자열 출력 경로");
-
-        if (string.IsNullOrWhiteSpace(StringFileName))
-            missingPaths.Add("문자열 파일 이름");
-
-        if (missingPaths.Count > 0)
-        {
-            Logger.Error($"다음 경로가 지정되지 않았습니다: {string.Join(", ", missingPaths)}");
-            return false;
-        }
-
-        return true;
     }
     #endregion
 }

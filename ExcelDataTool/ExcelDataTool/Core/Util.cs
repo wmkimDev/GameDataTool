@@ -58,6 +58,18 @@ public static class Util
         {
             case CellType.String:
                 return cell.StringCellValue;
+            case CellType.Formula:
+                switch (cell.CachedFormulaResultType)
+                {
+                    case CellType.String:
+                        return cell.StringCellValue;
+                    case CellType.Numeric:
+                        return cell.NumericCellValue.ToString(CultureInfo.InvariantCulture);
+                    case CellType.Boolean:
+                        return cell.BooleanCellValue.ToString();
+                    default:
+                        return string.Empty;
+                }
             default:
                 return cell.ToString() ?? string.Empty;
         }

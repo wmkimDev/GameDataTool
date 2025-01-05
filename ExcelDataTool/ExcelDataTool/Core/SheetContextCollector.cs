@@ -13,14 +13,16 @@ namespace ExcelDataTool.Core;
 
 public class SheetContextCollector
 {
-    private readonly List<SheetContext> _sheetContexts = new();
+    private readonly List<SheetContext> _normalSheetContexts = new();
+    private readonly List<SheetContext> _stringSheetContexts = new();
     private static readonly string[] SupportedExtensions = { ".xlsx", ".xls" };
     private readonly TableAddress _address;
     private readonly IReadOnlyDictionary<string, string> _typeMap;
     private readonly string _configPath;
     private SheetContext _currentSheetContext = null!;
     
-    public IReadOnlyList<SheetContext> SheetContexts => _sheetContexts;
+    public IReadOnlyList<SheetContext> NormalSheetContexts => _normalSheetContexts;
+    public IReadOnlyList<SheetContext> StringSheetContexts => _stringSheetContexts;
 
     public SheetContextCollector()
     {
@@ -42,7 +44,7 @@ public class SheetContextCollector
             var typeAliasList = System.Text.Json.JsonSerializer.Deserialize<List<TypeAliasItem>>(jsonString);
 
             return typeAliasList?.ToDictionary(
-                t => t.AliasType,
+                t => t.AliasType.ToLower(),
                 t => t.OriginalType,
                 StringComparer.OrdinalIgnoreCase
             ) ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -54,11 +56,36 @@ public class SheetContextCollector
         }
     }
     
-    public void CollectAll(string tablePath, string? enumFileName = null)
+    public void CollectAllContextWithoutSpecialFiles(string tablePath, IDictionary<eSpecialFileType, string> specialFiles)
     {
         _address.Reset();
         var excelFiles = GetExcelFileList(tablePath);
-        ProcessExcelFiles(excelFiles, enumFileName);
+        var filteredFiles = FilterSpecialFiles(excelFiles, specialFiles);
+        ProcessExcelFiles(filteredFiles);
+    }
+    
+    public void CollectStringContext(string tablePath, string stringFileName)
+    {
+        _address.Reset();
+        _stringSheetContexts.Clear();
+    
+        var excelFiles = GetExcelFileList(tablePath);
+        var stringFile = excelFiles.FirstOrDefault(file => 
+            string.Equals(
+                Path.GetFileNameWithoutExtension(file), 
+                stringFileName, 
+                StringComparison.OrdinalIgnoreCase
+            ));
+
+        if (stringFile == null)
+        {
+            var message = $"문자열 파일을 찾을 수 없습니다: {stringFileName}";
+            throw new FileNotFoundException(message);
+        }
+
+        _address.TableName = Path.GetFileNameWithoutExtension(stringFile);
+        var contexts = ProcessExcelFile(stringFile);
+        _stringSheetContexts.AddRange(contexts);
     }
 
     private List<string> GetExcelFileList(string tablePath)
@@ -83,6 +110,21 @@ public class SheetContextCollector
 
         return excelFiles;
     }
+    
+    private List<string> FilterSpecialFiles(List<string> excelFiles, IDictionary<eSpecialFileType, string>? specialFiles)
+    {
+        if (specialFiles == null || !specialFiles.Any())
+            return excelFiles;
+
+        var specialFileNames = specialFiles.Values.Select(Path.GetFileNameWithoutExtension)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        
+        return excelFiles.Where(file => 
+        {
+            var fileName      = Path.GetFileNameWithoutExtension(file);
+            return !specialFileNames.Contains(fileName);
+        }).ToList();
+    }
 
     private static bool IsExcelFile(string filePath)
     {
@@ -90,23 +132,16 @@ public class SheetContextCollector
         return SupportedExtensions.Contains(extension);
     }
 
-    private void ProcessExcelFiles(IEnumerable<string> files, string? enumFileName)
+    private void ProcessExcelFiles(IEnumerable<string> files)
     {
-        _sheetContexts.Clear();
+        _normalSheetContexts.Clear();
+        
         foreach (var file in files)
         {
-            if (IsEnumDataFile(Path.GetFileNameWithoutExtension(file), enumFileName))
-                continue;
-
             _address.TableName = Path.GetFileNameWithoutExtension(file);
             var contexts = ProcessExcelFile(file);
-            _sheetContexts.AddRange(contexts);
+            _normalSheetContexts.AddRange(contexts);
         }
-    }
-
-    private bool IsEnumDataFile(string sheetName, string? enumFileName)
-    {
-        return sheetName == enumFileName;
     }
 
     private List<SheetContext> ProcessExcelFile(string filePath)
@@ -137,7 +172,6 @@ public class SheetContextCollector
         _currentSheetContext = new SheetContext();
         var sheetName = GetSheetName(sheet);
         var (rowCount, columnCount) = GetTableDimensions(sheet);
-        Logger.Info("----------------------------------------");
         Logger.Info($"{_address.TableName}/{sheetName} 테이블 크기: {rowCount}행 x {columnCount}열");
         _currentSheetContext.PropertyNames = ExtractPropertyNames(sheet, columnCount);
         _currentSheetContext.PropertyTypes = ExtractPropertyTypes(sheet, columnCount);
@@ -148,6 +182,7 @@ public class SheetContextCollector
         var primaryKeyIndex = FindPrimaryKeyIndex(sheet, columnCount);
         var foreignKeys = FindForeignKeys(_currentSheetContext.PropertyNames);
         PrintKeyInfo(primaryKeyIndex, foreignKeys, _currentSheetContext.PropertyNames, _currentSheetContext.PropertyTypes);
+        Logger.Info("----------------------------------------");
 
         _currentSheetContext.TableName = _address.TableName!;
         _currentSheetContext.SheetName = sheetName;
@@ -229,7 +264,7 @@ public class SheetContextCollector
                 _address.ThrowException("속성 타입은 문자열이어야 합니다.");
 
             var typeString = cell.GetValue();
-            if (_typeMap.TryGetValue(typeString, out var mappedType))
+            if (_typeMap.TryGetValue(typeString.ToLower(), out var mappedType))
             {
                 propertyTypes.Add(mappedType);
             }
@@ -316,13 +351,13 @@ public class SheetContextCollector
     {
         Logger.Info("\n[테이블 키 정보]");
 
-        if (primaryKeyIndex != -1)
+        if (primaryKeyIndex == -1)
         {
-            Logger.Info($"  Primary Key: {propertyNames[primaryKeyIndex]} ({propertyTypes[primaryKeyIndex]})");
+            Logger.Warning("  Primary Key가 설정되지 않았습니다. 기본 테이블 순서(행 인덱스)를 키로 사용합니다.");
         }
         else
         {
-            Logger.Warning("  Primary Key가 설정되지 않았습니다. 기본 테이블 순서(행 인덱스)를 키로 사용합니다.");
+            Logger.Info($"  Primary Key: {propertyNames[primaryKeyIndex]} ({propertyTypes[primaryKeyIndex]})");
         }
 
         Logger.Info("\n[외래 키 정보]");
